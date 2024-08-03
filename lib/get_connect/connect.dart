@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import '../get_instance/src/lifecycle.dart';
 import 'http/src/certificates/certificates.dart';
 import 'http/src/exceptions/exceptions.dart';
@@ -15,6 +17,7 @@ export 'sockets/sockets.dart';
 abstract class GetConnectInterface with GetLifeCycleMixin {
   List<GetSocket>? sockets;
   GetHttpClient get httpClient;
+  void set httpClient(GetHttpClient httpClient);
 
   Future<Response<T>> get<T>(
     String url, {
@@ -134,6 +137,11 @@ class GetConnect extends GetConnectInterface {
       trustedCertificates: trustedCertificates,
       withCredentials: withCredentials,
       findProxy: findProxy);
+
+  @override
+  void set httpClient(GetHttpClient client) {
+    _httpClient = client;
+  }
 
   @override
   Future<Response<T>> get<T>(
@@ -316,10 +324,7 @@ class GetConnect extends GetConnectInterface {
         return GraphQLResponse<T>(
             graphQLErrors: listError
                 .map((e) => GraphQLError(
-                      code: (e['extensions'] != null
-                              ? e['extensions']['code'] ?? ''
-                              : '')
-                          .toString(),
+                      code: (e['extensions'] != null ? e['extensions']['code'] ?? '' : '').toString(),
                       message: (e['message'] ?? '').toString(),
                     ))
                 .toList());
